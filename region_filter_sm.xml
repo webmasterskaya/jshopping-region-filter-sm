@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="plugin" group="jshopping" method="upgrade">
+    <name>plg_jshopping_region_filter_sm</name>
+    <author></author>
+    <creationDate></creationDate>
+    <copyright></copyright>
+    <license></license>
+    <authorEmail></authorEmail>
+    <authorUrl></authorUrl>
+    <version></version>
+    <description>plg_jshopping_region_filter_sm_DESCRIPTION</description>
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.plg_jshopping_region_filter_sm.ini</language>
+        <language tag="en-GB">en-GB/en-GB.plg_jshopping_region_filter_sm.sys.ini</language>
+        <language tag="ru-RU">ru-RU/ru-RU.plg_jshopping_region_filter_sm.ini</language>
+        <language tag="ru-RU">ru-RU/ru-RU.plg_jshopping_region_filter_sm.sys.ini</language>
+    </languages>
+    <files>
+        <filename plugin="region_filter_sm">region_filter_sm.php</filename>
+    </files>
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+            </fieldset>
+        </fields>
+    </config>
+    <media destination="plg_jshopping_region_filter_sm" folder="media">
+        <folder>js</folder>
+    </media>
+    <updateservers>
+        <server type="extension" priority="1" name="jshopping-region-filter-sm">
+            https://site.com/update?extension=plg_jshopping_region_filter_sm
+        </server>
+    </updateservers>
+</extension>
