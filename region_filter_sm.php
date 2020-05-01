@@ -168,16 +168,19 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 
 	protected function saveMethodStates($method, $states = [])
 	{
+
 		if (!empty($method))
 		{
+			if (!is_array($method))
+			{
+				$method = [$method];
+			}
 			$db    = Factory::getDbo();
 			$query = $db->getQuery(true);
 
 			$query->delete($db->quoteName('#__jshopping_shipping_method_price_states'))
-				->where($db->quoteName('sh_pr_method_id') . ' = ' . intval($method));
+				->where($db->quoteName('sh_pr_method_id') . ' IN (' . implode(',', $method) . ')');
 			$db->setQuery($query)->execute();
-
-			$query->clear();
 
 			if (!empty($states))
 			{
@@ -185,10 +188,18 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 					->columns($db->quoteName(['state_id', 'country_id', 'sh_pr_method_id']));
 				foreach ($states as $state)
 				{
-					$query->values(implode(',', [$state['state'], $state['country'], $method]));
+					$query->values(implode(',', [$state['state'], $state['country'], $method[0]]));
 				}
 				$db->setQuery($query)->execute();
 			}
+		}
+	}
+
+	public function onAfterRemoveShippingPrice(&$cid)
+	{
+		if (!empty($cid))
+		{
+			$this->saveMethodStates($cid);
 		}
 	}
 }
