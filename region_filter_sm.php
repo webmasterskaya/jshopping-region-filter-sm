@@ -324,28 +324,53 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 	 *
 	 * @since 1.0.0
 	 */
-	protected function getSelectedStates($method, $country)
+	protected function getSelectedStates($method, $country = 0)
 	{
-		$states = [];
-
+		$db    = Factory::getDbo();
+		$lang  = JSFactory::getLang();
+		$query = $db->getQuery(true);
+		$query->select($db->quoteName(['sm.state_id', 's.' . $lang->get('name'), 's.country_id'],
+			['id', 'name', 'country']))
+			->from($db->quoteName('#__jshopping_shipping_method_price_states', 'sm'))
+			->join('LEFT', $db->quoteName('#__jshopping_states', 's') .
+				' ON ' . $db->quoteName('sm.state_id') . ' = ' . $db->quoteName('s.state_id') .
+				' AND ' . $db->quoteName('sm.country_id') . ' = ' . $db->quoteName('s.country_id'))
+			->where($db->quoteName('s.state_publish') . '= 1')
+			->where($db->quoteName('sm.sh_pr_method_id') . ' = ' . intval($method));
 		if (!empty($country))
 		{
-			$db    = Factory::getDbo();
-			$lang  = JSFactory::getLang();
-			$query = $db->getQuery(true);
-			$query->select($db->quoteName(['sm.state_id', 's.' . $lang->get('name'), 's.country_id'],
-				['id', 'name', 'country']))
-				->from($db->quoteName('#__jshopping_shipping_method_price_states', 'sm'))
-				->join('LEFT', $db->quoteName('#__jshopping_states', 's') .
-					' ON ' . $db->quoteName('sm.state_id') . ' = ' . $db->quoteName('s.state_id') .
-					' AND ' . $db->quoteName('sm.country_id') . ' = ' . $db->quoteName('s.country_id'))
-				->where($db->quoteName('s.state_publish') . '= 1')
-				->where($db->quoteName('s.country_id') . ' = ' . $country)
-				->where($db->quoteName('sm.sh_pr_method_id') . ' = ' . intval($method));
-			$db->setQuery($query);
-			$states = $db->loadObjectList('id');
+			$query->where($db->quoteName('s.country_id') . ' = ' . $country);
 		}
+		$db->setQuery($query);
+		$states = $db->loadObjectList('id');
 
 		return $states;
+	}
+
+	public function onBeforeDisplayShippngsPrices(&$view)
+	{
+		foreach ($view->rows as $key => $row)
+		{
+			if (!empty($row->countries))
+			{
+				$row->countries = '<div><b>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_LIST_COUNTRIES') . ':</b> ' . $row->countries . '</div>';
+			}
+
+			$selectedStates = $this->getSelectedStates($row->sh_pr_method_id);
+			if (!empty($selectedStates))
+			{
+				if (count($selectedStates) > 10)
+				{
+					$states = implode(',', array_slice(array_column($selectedStates, 'name'), 0, 10)) . '...';
+				}
+				else
+				{
+					$states = implode(',', array_column($selectedStates, 'name'));
+				}
+				$row->countries .= '<div><b>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_LIST_STATES') . ':</b> ' . $states . '</div>';
+			}
+
+			$view->rows[$key] = $row;
+		}
 	}
 }
