@@ -147,7 +147,6 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		$input  = $this->app->input->getArray();
 		$states = [];
 		$method = $shipping_pr->sh_pr_method_id;
-		echo "<pre>";
 		if (!empty($input['shipping_states_id']))
 		{
 			foreach ($input['shipping_states_id'] as $state_id)
