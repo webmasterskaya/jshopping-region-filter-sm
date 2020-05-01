@@ -1,0 +1,1 @@
+DROP TABLE `#__jshopping_shipping_method_price_states`;

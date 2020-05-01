@@ -1,4 +1,4 @@
-create table `#__jshopping_shipping_method_price_states`
+create table if not exists `#__jshopping_shipping_method_price_states`
 (
     `state_id`        INT(11) not null auto_increment,
     `country_id`      INT(11) not null,
@@ -6,5 +6,6 @@ create table `#__jshopping_shipping_method_price_states`
     index `state_id` (`state_id`),
     index `country_id` (`country_id`),
     index `sh_pr_method_id` (`sh_pr_method_id`)
-) collate = 'utf8_general_ci'
-  engine = InnoDB;
+) engine = InnoDB
+  default charset = utf8mb4
+  default collate = utf8mb4_unicode_ci;
