@@ -62,7 +62,6 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 			{
 				$options   = [];
 				$selected  = [];
-				$options[] = JHTML::_('select.option', '0', _JSHOP_REG_SELECT, 'state_id', 'name');
 				foreach ($states as $state)
 				{
 					$options[] = HTMLHelper::_('select.option', $state->id, $state->name, 'state_id', 'name');
@@ -77,12 +76,12 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 			}
 			else
 			{
-				$output = '<input type="text" name="shipping_states_id" value="" placeholder="Не удалось подобрать регион" disabled />';
+				$output = '<input type="text" id="shipping_states_id" name="shipping_states_id" value="" placeholder="Не удалось подобрать регион" disabled />';
 			}
 		}
 		else
 		{
-			$output = '<input type="text" name="shipping_states_id" value="" placeholder="Сначала выберите страну" disabled />';
+			$output = '<input type="text" id="shipping_states_id" name="shipping_states_id" value="" placeholder="Сначала выберите страну" disabled />';
 		}
 
 		return $output;
@@ -100,7 +99,7 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 	{
 		$states = [];
 
-		if (!empty($countries) && !empty($method))
+		if (!empty($countries))
 		{
 			$db    = Factory::getDbo();
 			$lang  = JSFactory::getLang();
@@ -108,13 +107,22 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 			$query->select($db->quoteName(['s.state_id', 's.' . $lang->get('name'), 'sm.state_id'],
 				['id', 'name', 'select']))
 				->from($db->quoteName('#__jshopping_states', 's'))
-				->join('LEFT', $db->quoteName('#__jshopping_shipping_method_price_states', 'sm') .
-					' ON ' . $db->quoteName('s.state_id') . ' = ' . $db->quoteName('sm.state_id') .
-					' AND ' . $db->quoteName('s.country_id') . ' = ' . $db->quoteName('sm.country_id') .
-					' AND ' . $db->quoteName('sm.sh_pr_method_id') . ' = ' . intval($method))
 				->where($db->quoteName('s.state_publish') . '= 1')
 				->where($db->quoteName('s.country_id') . ' IN (' . implode(',', $countries) . ')')
 				->order($db->quoteName('s.ordering'));
+			if (!empty($method))
+			{
+				$query->join('LEFT', $db->quoteName('#__jshopping_shipping_method_price_states', 'sm') .
+					' ON ' . $db->quoteName('s.state_id') . ' = ' . $db->quoteName('sm.state_id') .
+					' AND ' . $db->quoteName('s.country_id') . ' = ' . $db->quoteName('sm.country_id') .
+					' AND ' . $db->quoteName('sm.sh_pr_method_id') . ' = ' . intval($method));
+			}
+			else
+			{
+				$query->join('LEFT', $db->quoteName('#__jshopping_shipping_method_price_states', 'sm') .
+					' ON ' . $db->quoteName('s.state_id') . ' = ' . $db->quoteName('sm.state_id') .
+					' AND ' . $db->quoteName('s.country_id') . ' = ' . $db->quoteName('sm.country_id'));
+			}
 			$db->setQuery($query);
 			$states = $db->loadObjectList('id');
 		}
@@ -122,16 +130,19 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		return $states;
 	}
 
+	public function onAjaxRegion_filter_sm()
+	{
+		$input     = $this->app->input->getArray();
+		$method    = intval($input['method']);
+		$countries = json_decode($input['countries']);
+		ob_start();
+		echo $this->prepareOutput($countries, $method);
+
+		return ob_get_clean();
+	}
+
 	protected function saveMethodStates($method, $states)
 	{
 
-	}
-
-	public function onAjaxRegion_filter_sm()
-	{
-		$input = $this->app->input->getArray();
-		ob_start();
-		var_dump($input);
-		return ob_get_clean();
 	}
 }
