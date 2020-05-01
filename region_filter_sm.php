@@ -201,4 +201,85 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 			$this->saveMethodStates($cid);
 		}
 	}
+
+	public function onBeforeDisplayCheckoutStep4View(&$view)
+	{
+		$user = Factory::getUser();
+		if ($user->id)
+		{
+			$user_info = JSFactory::getUserShop();
+		}
+		else
+		{
+			$user_info = JSFactory::getUserShopGuest();
+		}
+
+		// Get selected state name
+		if (isset($user_info->d_state) && !empty($user_info->d_state))
+		{
+			$state_name = $user_info->d_state;
+		}
+		else
+		{
+			if (isset($user_info->state) && !empty($user_info->state))
+			{
+				$state_name = $user_info->state;
+			}
+		}
+
+		// Get selected country id
+		if (isset($user_info->d_country) && !empty($user_info->d_country))
+		{
+			$country_id = $user_info->d_country;
+		}
+		else
+		{
+			if (isset($user_info->country) && !empty($user_info->country))
+			{
+				$country_id = $user_info->country;
+			}
+		}
+
+		// Filter delivery methods if the country and region are selected
+		if (!empty($state_name) && !empty($country_id))
+		{
+			foreach ($view->shipping_methods as $key => $shipping_method)
+			{
+				$selectedStates = $this->getSelectedStates($shipping_method->sh_pr_method_id, $country_id);
+				if (!empty($selectedStates))
+				{
+					$states = array_column($selectedStates, 'name');
+					if (!in_array($state_name, $states))
+					{
+						unset($view->shipping_methods[$key]);
+					}
+				}
+			}
+		}
+	}
+
+	protected function getSelectedStates($method, $country)
+	{
+		$states = [];
+
+		if (!empty($country))
+		{
+			$db    = Factory::getDbo();
+			$lang  = JSFactory::getLang();
+			$query = $db->getQuery(true);
+			$query->select($db->quoteName(['sm.state_id', 's.' . $lang->get('name'), 's.country_id'],
+				['id', 'name', 'country']))
+				->from($db->quoteName('#__jshopping_shipping_method_price_states', 'sm'))
+				->join('LEFT', $db->quoteName('#__jshopping_states', 's') .
+					' ON ' . $db->quoteName('sm.state_id') . ' = ' . $db->quoteName('s.state_id') .
+					' AND ' . $db->quoteName('sm.country_id') . ' = ' . $db->quoteName('s.country_id'))
+				->where($db->quoteName('s.state_publish') . '= 1')
+				->where($db->quoteName('s.country_id') . ' = ' . $country)
+				->where($db->quoteName('sm.sh_pr_method_id') . ' = ' . intval($method));
+			$db->setQuery($query);
+			$states = $db->loadObjectList('id');
+		}
+
+		return $states;
+	}
 }
