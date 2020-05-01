@@ -1,7 +1,16 @@
 <?php
+/**
+ * @package   Jshopping - Region filter SM
+ * @version    __DEPLOY_VERSION__
+ * @author     Artem Vasilev - webmasterskaya.xyz
+ * @copyright  Copyright (c) 2020 Webmasterskaya. All rights reserved.
+ * @license    GNU General Public License version 3 or later; see LICENSE.txt
+ * @link       https://webmasterskaya.xyz/
+ */
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 
 defined('_JEXEC') or die;
@@ -50,13 +59,13 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 
 		if (!empty($output = $this->prepareOutput($countries, $sh_pr_method_id)))
 		{
-			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>Выбрать все страны</button>';
-			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="0" onclick="changeOptions(this); return false;"><span class="icon-cancel" aria-hidden="true"></span>Очистить все страны</button>';
+			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_BTN_COUNTRIES_SELECT') . '</button>';
+			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="0" onclick="changeOptions(this); return false;"><span class="icon-cancel" aria-hidden="true"></span>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_BTN_COUNTRIES_UNSELECT') . '</button>';
 			$view->lists['countries'] .= PHP_EOL . '</td></tr><tr><td class="key">Область</td><td>';
 
 			$view->lists['countries'] .= PHP_EOL . $output;
-			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="states" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>Выбрать все регионы</button>';
-			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="states" data-mode="0" onclick="changeOptions(this); return false;"><span class="icon-cancel" aria-hidden="true"></span>Очистить все регионы</button>';
+			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="states" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_BTN_STATES_SELECT') . '</button>';
+			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="states" data-mode="0" onclick="changeOptions(this); return false;"><span class="icon-cancel" aria-hidden="true"></span>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_BTN_STATES_UNSELECT') . '</button>';
 		}
 	}
 
@@ -83,12 +92,12 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 			}
 			else
 			{
-				$output = '<input type="text" id="shipping_states_id" name="shipping_states_id" value="" placeholder="Не удалось подобрать регион" disabled />';
+				$output = '<input type="text" id="shipping_states_id" name="shipping_states_id" value="" placeholder="' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_STATES_NOT_FOUND') . '" disabled />';
 			}
 		}
 		else
 		{
-			$output = '<input type="text" id="shipping_states_id" name="shipping_states_id" value="" placeholder="Сначала выберите страну" disabled />';
+			$output = '<input type="text" id="shipping_states_id" name="shipping_states_id" value="" placeholder="' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_COUNTRIES_NEED_SELECT') . '" disabled />';
 		}
 
 		return $output;
