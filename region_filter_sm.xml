@@ -27,6 +27,8 @@
     </uninstall>
     <files>
         <filename plugin="region_filter_sm">region_filter_sm.php</filename>
+        <folder>sql</folder>
+        <folder>media</folder>
     </files>
     <media destination="plg_jshopping_region_filter_sm" folder="media">
         <folder>js</folder>
