@@ -48,8 +48,6 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 			}
 		}
 
-		define('_JSHOP_COUNTRY', 'Страна и область');
-
 		if (!empty($output = $this->prepareOutput($countries, $sh_pr_method_id)))
 		{
 			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>Выбрать все страны</button>';
