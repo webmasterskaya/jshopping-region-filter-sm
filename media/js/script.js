@@ -29,3 +29,28 @@ jQuery(function() {
 		);
 	});
 });
+
+function changeOptions(btn) {
+	btn = jQuery(btn);
+	var element = '', chzn = false;
+	switch (btn.data('select')) {
+		case 'country':
+			element = jQuery('#shipping_countries_id');
+			if (jQuery('#shipping_countries_id_chzn').length > 0) {
+				chzn = true;
+			}
+			break;
+		case 'states':
+			element = jQuery('#shipping_states_id');
+			if (jQuery('#shipping_states_id_chzn').length > 0) {
+				chzn = true;
+			}
+			break;
+	}
+
+	element.find('option').prop('selected', !!(btn.data('mode')));
+	element.trigger('change');
+	if (chzn) {
+		element.trigger('liszt:updated');
+	}
+}

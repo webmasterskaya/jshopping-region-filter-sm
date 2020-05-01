@@ -51,6 +51,10 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		if (!empty($output = $this->prepareOutput($countries, $sh_pr_method_id)))
 		{
 			$view->lists['countries'] .= PHP_EOL . $output;
+			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>Выбрать все страны</button>';
+			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="0" onclick="changeOptions(this); return false;"><span class="icon-cancel" aria-hidden="true"></span>Очистить все страны</button>';
+			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="states" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>Выбрать все регионы</button>';
+			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="states" data-mode="0" onclick="changeOptions(this); return false;"><span class="icon-cancel" aria-hidden="true"></span>Очистить все регионы</button>';
 		}
 	}
 
