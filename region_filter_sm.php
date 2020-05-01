@@ -60,14 +60,15 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		{
 			if (!empty($states = $this->getStates($countries, $method)))
 			{
-				$options   = [];
-				$selected  = [];
+				$options  = [];
+				$selected = [];
 				foreach ($states as $state)
 				{
-					$options[] = HTMLHelper::_('select.option', $state->id, $state->name, 'state_id', 'name');
+					$options[] = HTMLHelper::_('select.option', '[' . $state->country . '][' . $state->id . ']',
+						$state->name, 'state_id', 'name');
 					if (!empty($state->select))
 					{
-						$selected[] = $state->id;
+						$selected[] = '[' . $state->country . '][' . $state->id . ']';
 					}
 				}
 				$output = HTMLHelper::_('select.genericlist', $options, 'shipping_states_id[]',
@@ -104,8 +105,8 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 			$db    = Factory::getDbo();
 			$lang  = JSFactory::getLang();
 			$query = $db->getQuery(true);
-			$query->select($db->quoteName(['s.state_id', 's.' . $lang->get('name'), 'sm.state_id'],
-				['id', 'name', 'select']))
+			$query->select($db->quoteName(['s.state_id', 's.' . $lang->get('name'), 's.country_id', 'sm.state_id'],
+				['id', 'name', 'country', 'select']))
 				->from($db->quoteName('#__jshopping_states', 's'))
 				->where($db->quoteName('s.state_publish') . '= 1')
 				->where($db->quoteName('s.country_id') . ' IN (' . implode(',', $countries) . ')')
@@ -141,8 +142,53 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		return ob_get_clean();
 	}
 
-	protected function saveMethodStates($method, $states)
+	public function onAfterSaveShippingPrice(&$shipping_pr)
 	{
+		$input  = $this->app->input->getArray();
+		$states = [];
+		$method = $shipping_pr->sh_pr_method_id;
+		echo "<pre>";
+		if (!empty($input['shipping_states_id']))
+		{
+			foreach ($input['shipping_states_id'] as $state_id)
+			{
+				$matches = [];
+				preg_match('/\[([0-9]+)\]\[([0-9]+)\]/', $state_id, $matches);
+				if (!empty($matches))
+				{
+					$states[] = [
+						'country' => $matches[1],
+						'state'   => $matches[2],
+					];
+				}
+			}
+		}
+		$this->saveMethodStates($method, $states);
+	}
 
+	protected function saveMethodStates($method, $states = [])
+	{
+		if (!empty($method))
+		{
+			$db    = Factory::getDbo();
+			$query = $db->getQuery(true);
+
+			$query->delete($db->quoteName('#__jshopping_shipping_method_price_states'))
+				->where($db->quoteName('sh_pr_method_id') . ' = ' . intval($method));
+			$db->setQuery($query)->execute();
+
+			$query->clear();
+
+			if (!empty($states))
+			{
+				$query->insert($db->quoteName('#__jshopping_shipping_method_price_states'))
+					->columns($db->quoteName(['state_id', 'country_id', 'sh_pr_method_id']));
+				foreach ($states as $state)
+				{
+					$query->values(implode(',', [$state['state'], $state['country'], $method]));
+				}
+				$db->setQuery($query)->execute();
+			}
+		}
 	}
 }
