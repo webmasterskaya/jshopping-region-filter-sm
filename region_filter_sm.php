@@ -1,6 +1,6 @@
 <?php
 /**
- * @package   Jshopping - Region filter SM
+ * @package    Jshopping - Region filter SM
  * @version    __DEPLOY_VERSION__
  * @author     Artem Vasilev - webmasterskaya.xyz
  * @copyright  Copyright (c) 2020 Webmasterskaya. All rights reserved.
@@ -57,10 +57,12 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 			}
 		}
 
+		$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_BTN_COUNTRIES_SELECT') . '</button>';
+		$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="0" onclick="changeOptions(this); return false;"><span class="icon-cancel" aria-hidden="true"></span>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_BTN_COUNTRIES_UNSELECT') . '</button>';
+
 		if (!empty($output = $this->prepareOutput($countries, $sh_pr_method_id)))
 		{
-			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="1" onclick="changeOptions(this); return false;"><span class="icon-save" aria-hidden="true"></span>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_BTN_COUNTRIES_SELECT') . '</button>';
-			$view->lists['countries'] .= PHP_EOL . '<button role="button" class="btn btn-small" data-select="country" data-mode="0" onclick="changeOptions(this); return false;"><span class="icon-cancel" aria-hidden="true"></span>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_BTN_COUNTRIES_UNSELECT') . '</button>';
+			// Separate country and state
 			$view->lists['countries'] .= PHP_EOL . '</td></tr><tr><td class="key">Область</td><td>';
 
 			$view->lists['countries'] .= PHP_EOL . $output;
@@ -69,6 +71,15 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		}
 	}
 
+	/**
+	 * @param $countries
+	 * @param $method
+	 *
+	 * @return mixed|string
+	 *
+	 *
+	 * @since 1.0.0
+	 */
 	protected function prepareOutput($countries, $method)
 	{
 		if (!empty($countries))
@@ -146,6 +157,12 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		return $states;
 	}
 
+	/**
+	 * @return false|string
+	 *
+	 *
+	 * @since 1.0.0
+	 */
 	public function onAjaxRegion_filter_sm()
 	{
 		$input     = $this->app->input->getArray();
@@ -157,6 +174,12 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		return ob_get_clean();
 	}
 
+	/**
+	 * @param $shipping_pr
+	 *
+	 *
+	 * @since 1.0.0
+	 */
 	public function onAfterSaveShippingPrice(&$shipping_pr)
 	{
 		$input  = $this->app->input->getArray();
@@ -180,6 +203,13 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		$this->saveMethodStates($method, $states);
 	}
 
+	/**
+	 * @param          $method
+	 * @param   array  $states
+	 *
+	 *
+	 * @since 1.0.0
+	 */
 	protected function saveMethodStates($method, $states = [])
 	{
 
@@ -209,6 +239,12 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		}
 	}
 
+	/**
+	 * @param $cid
+	 *
+	 *
+	 * @since 1.0.0
+	 */
 	public function onAfterRemoveShippingPrice(&$cid)
 	{
 		if (!empty($cid))
@@ -217,6 +253,12 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		}
 	}
 
+	/**
+	 * @param $view
+	 *
+	 *
+	 * @since 1.0.0
+	 */
 	public function onBeforeDisplayCheckoutStep4View(&$view)
 	{
 		$user = Factory::getUser();
@@ -273,6 +315,15 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		}
 	}
 
+	/**
+	 * @param $method
+	 * @param $country
+	 *
+	 * @return array|mixed
+	 *
+	 *
+	 * @since 1.0.0
+	 */
 	protected function getSelectedStates($method, $country)
 	{
 		$states = [];
