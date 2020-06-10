@@ -7,7 +7,7 @@ jQuery(function() {
 			selectedValues.push(jQuery(this).val());
 		});
 		jQuery.ajax(
-			'/index.php?option=com_ajax&plugin=region_filter_sm&group=jshopping&format=raw',
+			Joomla.getOptions('system.paths').base + '/index.php?option=com_ajax&plugin=region_filter_sm&group=jshopping&format=raw',
 			{
 				method: 'GET',
 				data: {
