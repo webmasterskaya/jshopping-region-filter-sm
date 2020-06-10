@@ -7,7 +7,7 @@
     <license>GNU General Public License version 3 or later; see LICENSE.txt</license>
     <authorEmail>dev@webmasterskaya.xyz</authorEmail>
     <authorUrl>https://webmasterskaya.xyz</authorUrl>
-    <version>1.0.0-rc1</version>
+    <version>1.1.0</version>
     <description>PLG_JSHOPPING_REGION_FILTER_SM_DESCRIPTION</description>
     <languages folder="language">
         <language tag="en-GB">en-GB/en-GB.plg_jshopping_region_filter_sm.ini</language>
