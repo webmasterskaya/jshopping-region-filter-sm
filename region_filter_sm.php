@@ -253,65 +253,43 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		}
 	}
 
+	public function onJSFactoryGetTable(&$type, &$prefix, &$config)
+	{
+		if ($type == 'shippingMethod')
+		{
+			JTable::addIncludePath(JPATH_PLUGINS . DIRECTORY_SEPARATOR . $this->_type . DIRECTORY_SEPARATOR . $this->_name . DIRECTORY_SEPARATOR . 'tables');
+		}
+	}
+
 	/**
 	 * @param $view
 	 *
-	 *
 	 * @since 1.0.0
 	 */
-	public function onBeforeDisplayCheckoutStep4View(&$view)
+	public function onBeforeDisplayShippngsPrices(&$view)
 	{
-		$user = Factory::getUser();
-		if ($user->id)
+		foreach ($view->rows as $key => $row)
 		{
-			$user_info = JSFactory::getUserShop();
-		}
-		else
-		{
-			$user_info = JSFactory::getUserShopGuest();
-		}
-
-		// Get selected state name
-		if (isset($user_info->d_state) && !empty($user_info->d_state))
-		{
-			$state_name = $user_info->d_state;
-		}
-		else
-		{
-			if (isset($user_info->state) && !empty($user_info->state))
+			if (!empty($row->countries))
 			{
-				$state_name = $user_info->state;
+				$row->countries = '<div><b>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_LIST_COUNTRIES') . ':</b> ' . $row->countries . '</div>';
 			}
-		}
 
-		// Get selected country id
-		if (isset($user_info->d_country) && !empty($user_info->d_country))
-		{
-			$country_id = $user_info->d_country;
-		}
-		else
-		{
-			if (isset($user_info->country) && !empty($user_info->country))
+			$selectedStates = $this->getSelectedStates($row->sh_pr_method_id);
+			if (!empty($selectedStates))
 			{
-				$country_id = $user_info->country;
-			}
-		}
-
-		// Filter delivery methods if the country and region are selected
-		if (!empty($state_name) && !empty($country_id))
-		{
-			foreach ($view->shipping_methods as $key => $shipping_method)
-			{
-				$selectedStates = $this->getSelectedStates($shipping_method->sh_pr_method_id, $country_id);
-				if (!empty($selectedStates))
+				if (count($selectedStates) > 10)
 				{
-					$states = array_column($selectedStates, 'name');
-					if (!in_array($state_name, $states))
-					{
-						unset($view->shipping_methods[$key]);
-					}
+					$states = implode(',', array_slice(array_column($selectedStates, 'name'), 0, 10)) . '...';
 				}
+				else
+				{
+					$states = implode(',', array_column($selectedStates, 'name'));
+				}
+				$row->countries .= '<div><b>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_LIST_STATES') . ':</b> ' . $states . '</div>';
 			}
+
+			$view->rows[$key] = $row;
 		}
 	}
 
@@ -347,30 +325,60 @@ class PlgJshoppingRegion_filter_sm extends CMSPlugin
 		return $states;
 	}
 
-	public function onBeforeDisplayShippngsPrices(&$view)
+	/**
+	 * @param $config
+	 *
+	 * @since 1.1.0
+	 */
+	public function onBeforeLoadJshopConfig($config)
 	{
-		foreach ($view->rows as $key => $row)
+		$this->overrideClass('jshopShippingMethod');
+	}
+
+	/**
+	 * @param   string|null  $class
+	 *
+	 * @since 1.1.0
+	 */
+	protected function overrideClass($class = null)
+	{
+		$classes = array(
+			'jshopShippingMethod' => array(
+				'original' => JPATH_ROOT . '/components/com_jshopping/tables/shippingmethod.php',
+				'override' => __DIR__ . '/tables/shippingmethodoriginal.php',
+			),
+		);
+
+		if (!empty($classes[$class]) && !class_exists($class))
 		{
-			if (!empty($row->countries))
+			$originalClass = $class . 'Original';
+			if (!class_exists($originalClass))
 			{
-				$row->countries = '<div><b>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_LIST_COUNTRIES') . ':</b> ' . $row->countries . '</div>';
-			}
+				$original = JPath::clean($classes[$class]['original']);
+				$override = JPath::clean($classes[$class]['override']);
 
-			$selectedStates = $this->getSelectedStates($row->sh_pr_method_id);
-			if (!empty($selectedStates))
-			{
-				if (count($selectedStates) > 10)
+				if (!file_exists($override))
 				{
-					$states = implode(',', array_slice(array_column($selectedStates, 'name'), 0, 10)) . '...';
+					file_put_contents($override, '');
 				}
-				else
-				{
-					$states = implode(',', array_column($selectedStates, 'name'));
-				}
-				$row->countries .= '<div><b>' . Text::_('PLG_JSHOPPING_REGION_FILTER_SM_LIST_STATES') . ':</b> ' . $states . '</div>';
-			}
 
-			$view->rows[$key] = $row;
+				$context = file_get_contents($original);
+				$context = str_replace('class ' . $class, 'class ' . $originalClass, $context);
+				if (file_get_contents($override) !== $context)
+				{
+					file_put_contents($override, $context);
+				}
+			}
 		}
+	}
+
+	/**
+	 *
+	 *
+	 * @since 1.1.0
+	 */
+	public function onAfterLoadShopParamsAdmin()
+	{
+		$this->overrideClass('jshopShippingMethod');
 	}
 }
