@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    Jshopping - Region filter SM
- * @version    1.1.1
+ * @version    1.1.2
  * @author     Artem Vasilev - webmasterskaya.xyz
  * @copyright  Copyright (c) 2020 Webmasterskaya. All rights reserved.
  * @license    GNU General Public License version 3 or later; see LICENSE.txt
@@ -23,10 +23,10 @@ class jshopShippingMethod extends jshopShippingMethodOriginal
 
 		$query = $db->getQuery(true);
 
-		$select = array('*', 'sh_method.' . $lang->get("name"), $lang->get("description"));
-		$as     = array('', 'name', 'description');
+		$select = array('sh_method.' . $lang->get("name"), $lang->get("description"));
+		$as     = array('name', 'description');
 
-		$query->select($db->quoteName($select, $as))
+		$query->select(array_merge(['*'], $db->quoteName($select, $as)))
 			->from($db->quoteName('#__jshopping_shipping_method', 'sh_method'))
 			->join('INNER', $db->quoteName('#__jshopping_shipping_method_price',
 					'sh_pr_method') . ' ON ' . $db->quoteName('sh_method.shipping_id') . ' = ' . $db->quoteName('sh_pr_method.shipping_method_id'))
